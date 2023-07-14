@@ -1,5 +1,31 @@
 import org.opensearch.gradle.test.RestIntegTestTask
 
+buildscript {
+    ext {
+        isSnapshot = "true" == System.getProperty("build.snapshot", "true")
+        opensearch_version = System.getProperty("opensearch.version", "3.0.0")
+        plugin_version = opensearch_version
+        if (isSnapshot) {
+            opensearch_version += "-SNAPSHOT"
+        }
+    }
+
+    repositories {
+        mavenLocal()
+        maven { url "https://aws.oss.sonatype.org/content/repositories/snapshots" }
+        mavenCentral()
+        maven { url "https://plugins.gradle.org/m2/" }
+    }
+
+    dependencies {
+        classpath "org.opensearch.gradle:build-tools:${opensearch_version}"
+    }
+}
+
+plugins {
+    id 'com.diffplug.spotless' version '5.11.0'
+}
+
 apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: 'opensearch.opensearchplugin'
@@ -51,28 +77,6 @@ loggerUsageCheck.enabled = false
 // No need to validate pom, as we do not upload to maven/sonatype
 validateNebulaPom.enabled = false
 
-buildscript {
-    ext {
-        isSnapshot = "true" == System.getProperty("build.snapshot", "true")
-        opensearch_version = System.getProperty("opensearch.version", "3.0.0")
-        plugin_version = opensearch_version
-        if (isSnapshot) {
-            opensearch_version += "-SNAPSHOT"
-        }
-    }
-
-    repositories {
-        mavenLocal()
-        maven { url "https://aws.oss.sonatype.org/content/repositories/snapshots" }
-        mavenCentral()
-        maven { url "https://plugins.gradle.org/m2/" }
-    }
-
-    dependencies {
-        classpath "org.opensearch.gradle:build-tools:${opensearch_version}"
-    }
-}
-
 repositories {
     mavenLocal()
     maven { url "https://aws.oss.sonatype.org/content/repositories/snapshots" }
@@ -94,7 +98,6 @@ dependencies {
     implementation 'com.amazonaws:aws-java-sdk-personalizeruntime:1.12.300'
 }
 
-
 allprojects {
   plugins.withId('jacoco') {
     jacoco.toolVersion = '0.8.9'
@@ -105,6 +108,17 @@ allprojects {
 test {
     include '**/*Tests.class'
     finalizedBy jacocoTestReport
+}
+
+spotless {
+    java {
+        licenseHeaderFile(file('license-header'))
+        googleJavaFormat('1.12.0').aosp()
+        importOrder()
+        removeUnusedImports()
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
 }
 
 task integTest(type: RestIntegTestTask) {
