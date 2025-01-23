@@ -24,6 +24,11 @@ opensearchplugin {
     noticeFile rootProject.file('NOTICE')
 }
 
+java {
+    targetCompatibility = JavaVersion.VERSION_21
+    sourceCompatibility = JavaVersion.VERSION_21
+}
+
 // This requires an additional Jar not published as part of build-tools
 loggerUsageCheck.enabled = false
 

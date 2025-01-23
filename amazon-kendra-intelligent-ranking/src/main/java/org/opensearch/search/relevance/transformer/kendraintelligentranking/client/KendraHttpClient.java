@@ -55,6 +55,7 @@ public class KendraHttpClient implements Closeable {
   private final ObjectMapper objectMapper = new ObjectMapper()
           .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
+  @SuppressWarnings("removal")
   public KendraHttpClient(KendraClientSettings clientSettings) {
     serviceEndpoint = clientSettings.getServiceEndpoint();
     executionPlanId = clientSettings.getExecutionPlanId();
@@ -102,6 +103,7 @@ public class KendraHttpClient implements Closeable {
     }
   }
 
+  @SuppressWarnings({ "deprecation", "removal" })
   public RescoreResult rescore(RescoreRequest rescoreRequest) {
     return AccessController.doPrivileged((PrivilegedAction<RescoreResult>) () -> {
       try {
